@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Outils professionnels de consulting pour la gestion d'appels d'offres, propositions commerciales et cahiers des charges",
-    "version": "1.0.0"
+    "version": "1.0.1"
   },
   "plugins": [
     {
