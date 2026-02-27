@@ -318,3 +318,51 @@ Avant de passer à la synthèse, vérifier :
 - [ ] Les questions soutenance sont enregistrées dans le champ `question` MCP
 - [ ] Les documents manquants (status `pending`) sont identifiés et documentés
 - [ ] L'utilisateur a validé chaque checkpoint catégorie
+
+---
+
+## Bonnes pratiques
+
+1. **Toujours lire l'exigence entièrement** avant d'évaluer — ne jamais noter sur le titre seul
+2. **Comparer systématiquement** — la note d'un fournisseur ne se comprend qu'en regard des autres
+3. **Être précis dans les commentaires** — "réponse vague" ne suffit pas, dire ce qui manque exactement
+4. **Proportionner l'effort** au poids — ne pas passer autant de temps sur une exigence à 0.2 qu'à 0.9
+5. **Documenter les deep dives** — mentionner quel document et quelle section ont été consultés
+6. **Ne pas deviner** — si une réponse est ambiguë, le dire dans le commentaire et poser une question soutenance
+7. **Checkpoint catégorie systématique** — ne jamais passer à la catégorie suivante sans validation
+
+---
+
+## Scénarios courants
+
+### Scénario 1 : Évaluation complète depuis zéro
+L'utilisateur fournit un dossier avec CDC, grille et réponses fournisseurs.
+
+1. Vérifier que les exigences sont dans rfp-analyzer (sinon → rfp-import-extractor)
+2. Demander les noms des fournisseurs et la structure de leurs dossiers
+3. Lancer Phase 0 → Executive Summary → validation
+4. Boucle catégorie par catégorie avec checkpoints
+5. Synthèse + output choisi par l'utilisateur
+
+### Scénario 2 : Ajout d'un fournisseur en cours d'évaluation
+L'évaluation est déjà commencée, un nouveau dossier arrive.
+
+1. Confirmer : "Je vais évaluer [Fournisseur X] sur toutes les catégories déjà traitées, puis continuer en parallèle. Confirmez ?"
+2. Reprendre depuis la première catégorie pour ce fournisseur
+3. Mettre à jour la synthèse partielle
+
+### Scénario 3 : Re-évaluation d'une catégorie
+L'utilisateur souhaite revoir des notes après un échange avec un fournisseur.
+
+1. Récupérer les évaluations existantes depuis le MCP
+2. Présenter les scores actuels
+3. Procéder aux ajustements demandés
+4. Sauvegarder en MCP et mettre à jour la synthèse
+
+### Scénario 4 : Exigences non encore dans rfp-analyzer
+La grille existe en local (Excel ou Word) mais n'est pas importée.
+
+1. Proposer de déclencher rfp-import-extractor
+2. Attendre l'import complet
+3. Vérifier via MCP que les exigences sont bien présentes
+4. Lancer Phase 0
