@@ -1,0 +1,82 @@
+{
+  "profiles": [
+    {
+      "id": "consultant",
+      "name": "Consultant",
+      "level": "junior",
+      "description": "Consultant junior, support opérationnel et production",
+      "tjm": 800,
+      "typical_activities": [
+        "Recherche et analyse documentaire",
+        "Production de livrables",
+        "Support aux ateliers",
+        "Synthèse et mise en forme"
+      ]
+    },
+    {
+      "id": "senior_consultant",
+      "name": "Senior Consultant",
+      "level": "confirmé",
+      "description": "Consultant confirmé, pilotage d'activités et animation",
+      "tjm": 1000,
+      "typical_activities": [
+        "Animation d'ateliers",
+        "Analyse et diagnostic",
+        "Rédaction de livrables structurants",
+        "Coordination d'équipe"
+      ]
+    },
+    {
+      "id": "associate_manager",
+      "name": "Associate Manager",
+      "level": "senior",
+      "description": "Manager junior, pilotage de workstream et relation client",
+      "tjm": 1200,
+      "typical_activities": [
+        "Pilotage de workstream",
+        "Animation de comités",
+        "Relation client opérationnelle",
+        "Cadrage méthodologique"
+      ]
+    },
+    {
+      "id": "manager",
+      "name": "Manager",
+      "level": "senior",
+      "description": "Manager confirmé, pilotage de projet et responsabilité P&L",
+      "tjm": 1400,
+      "typical_activities": [
+        "Pilotage de mission",
+        "Gestion de la relation client",
+        "Cadrage et méthodologie",
+        "Revue qualité"
+      ]
+    },
+    {
+      "id": "senior_manager",
+      "name": "Senior Manager",
+      "level": "expert",
+      "description": "Manager senior, pilotage de programmes et expertise",
+      "tjm": 1600,
+      "typical_activities": [
+        "Pilotage de programme",
+        "Relation client stratégique",
+        "Expertise métier",
+        "Cadrage stratégique"
+      ]
+    },
+    {
+      "id": "partner",
+      "name": "Partner",
+      "level": "expert",
+      "description": "Associé, sponsorship et relation client executive",
+      "tjm": 2000,
+      "typical_activities": [
+        "Sponsorship mission",
+        "Relation client C-level",
+        "Cadrage stratégique",
+        "Business development"
+      ]
+    }
+  ]
+}
