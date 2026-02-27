@@ -10,12 +10,12 @@ Ce document définit la grille de notation utilisée pour évaluer les réponses
 |-------|-------|---------------|------------|
 | **0** | Aucune réponse | Pas de réponse fournie pour cette exigence | `fail` |
 | **1** | Hors sujet | Réponse fournie mais ne traite pas de l'exigence | `fail` |
-| **2** | Insuffisante | Réponse partielle ou trop vague pour convaincre | `partial` |
+| **2** | Insuffisante | Réponse partielle ou trop vague pour convaincre ou alors promesse de roadmap | `partial` ou `roadmap` si mention de roadmap |
 | **3** | Satisfaisante | Répond aux attentes principales de l'exigence | `pass` |
-| **4** | Bonne | Réponse complète, bien détaillée et convaincante | `pass` |
-| **5** | Excellente | Au-delà des attentes, apporte de la valeur ajoutée | `pass` |
+| **4** | Très bonne | Réponse complète, bien détaillée et convaincante | `pass` |
+| **5** | Excellente | Au-delà des attentes, apporte de la valeur ajoutée. Utilisé avec parcimonie, préférez le 4 en générale | `pass` |
 
-Les scores intermédiaires en 0.5 sont autorisés (ex: 2.5, 3.5) quand une réponse se situe précisément entre deux niveaux.
+Les scores intermédiaires en 0.5 sont interdits sauf mention explicite de l'utilisateur.
 
 ---
 
@@ -30,11 +30,10 @@ Les scores intermédiaires en 0.5 sont autorisés (ex: 2.5, 3.5) quand une répo
 ## Détail des niveaux
 
 ### Score 0 — Aucune réponse
-**Critères :** Le champ réponse est vide, absent, ou contient uniquement "N/A", "voir document X" sans contenu réel.
+**Critères :** Le champ réponse est vide, absent, ou contient uniquement "N/A" sans contenu réel.
 
 **Comment le détecter :**
 - `response_text` vide ou null dans le MCP
-- Réponse type "Cf. notre offre commerciale" sans autre contenu
 - Tableau Excel avec cellule vide pour cette exigence
 
 **Status :** `fail`
@@ -45,12 +44,11 @@ Les scores intermédiaires en 0.5 sont autorisés (ex: 2.5, 3.5) quand une répo
 ---
 
 ### Score 1 — Réponse hors sujet
-**Critères :** Une réponse est fournie mais elle ne répond pas à ce qui est demandé. Peut être une réponse copiée-collée d'une autre exigence, une présentation générique de la société, ou un texte qui n'aborde pas le sujet.
+**Critères :** Une réponse est fournie mais elle ne répond pas à ce qui est demandé. 
 
 **Comment le détecter :**
 - La réponse ne contient aucun mot-clé lié à l'exigence
 - Le fournisseur répond sur un aspect différent de l'exigence
-- Réponse générique applicable à n'importe quelle exigence
 
 **Status :** `fail`
 
@@ -60,23 +58,24 @@ Les scores intermédiaires en 0.5 sont autorisés (ex: 2.5, 3.5) quand une répo
 ---
 
 ### Score 2 — Réponse insuffisante / partielle
-**Critères :** L'exigence est bien identifiée et partiellement traitée, mais la réponse manque de profondeur, de détails techniques, de preuves ou de précisions sur des points importants. On comprend que le fournisseur peut adresser le sujet, mais on n'a pas de certitude.
+**Critères :** L'exigence est bien identifiée et partiellement traitée, mais la réponse manque de profondeur, de détails techniques, de preuves ou de précisions sur des points importants. On comprend que le fournisseur peut adresser le sujet, mais on n'a pas de certitude. Peut être une réponse copiée-collée d'une autre exigence.
 
 **Cas typiques :**
 - Réponse affirmative sans explication ("Oui, nous supportons cette fonctionnalité")
 - Éléments partiellement traités avec des lacunes sur des sous-points critiques
-- Réponse correcte sur le principe mais sans détail d'implémentation
 - Engagement sur un livrable sans calendrier ni méthodologie
+- Le soumissionnaire indique qu'il s'engage à l'intégrer dans sa roadmap ou doit le développer
 
-**Status :** `partial`
+**Status :** `partial` ou `roadmap` si mention de roadmap ou de développements nécessaires
 
 **Exemple de commentaire :**
 > "Le fournisseur confirme disposer d'une solution de monitoring en temps réel mais ne détaille pas les métriques surveillées, les seuils d'alerte ni la procédure d'escalade. La réponse reste au niveau des principes sans apporter de preuve concrète de mise en œuvre. Les fournisseurs B et C ont fourni des captures d'écran de leurs tableaux de bord."
+> "Le fournisseur s'engage à intégrer cette fonctionnalité dans sa roadmap mais sans calendrier ni méthodologie."
 
 ---
 
 ### Score 3 — Réponse satisfaisante
-**Critères :** L'exigence est correctement adressée dans ses attentes principales. La réponse est cohérente, compréhensible et démontre une bonne compréhension du besoin. Des lacunes mineures peuvent exister mais elles ne remettent pas en cause la capacité du fournisseur.
+**Critères :** L'exigence est correctement adressée dans ses attentes principales. La réponse est cohérente, compréhensible et démontre une bonne compréhension du besoin. Des lacunes mineures peuvent exister mais elles ne remettent pas en cause la capacité du fournisseur. Il peut s'agir d'une réponse sans trop de détail pour des exigences simples et assez standards.
 
 **Cas typiques :**
 - Réponse structurée qui couvre les points principaux
@@ -107,7 +106,7 @@ Les scores intermédiaires en 0.5 sont autorisés (ex: 2.5, 3.5) quand une répo
 ---
 
 ### Score 5 — Au-delà des attentes
-**Critères :** La réponse dépasse ce qui était demandé de manière qualitative. Le fournisseur apporte une approche innovante, des garanties supplémentaires, des fonctionnalités non demandées mais pertinentes, ou démontre une expertise distinctive.
+**Critères :** La réponse dépasse ce qui était demandé de manière qualitative. Le fournisseur apporte une approche innovante, des garanties supplémentaires, des fonctionnalités non demandées mais pertinentes, ou démontre une expertise distinctive. Cette note doit rester exceptionnelle et rare.
 
 **Cas typiques :**
 - Proposition d'une solution plus performante que le minimum requis
@@ -127,9 +126,9 @@ Les scores intermédiaires en 0.5 sont autorisés (ex: 2.5, 3.5) quand une répo
 | Critère | Longueur recommandée | Contenu attendu |
 |---------|----------------------|-----------------|
 | `is_mandatory: true` | 4-6 phrases | Justification score, comparaison fournisseurs, lacunes précises, impact sur la conformité |
-| `weight > 0.7` | 4-6 phrases | Justification score, points différenciants, ce qui aurait justifié un score supérieur |
-| `weight 0.4-0.7` | 2-3 phrases | Justification score, point principal manquant ou point fort |
-| `weight < 0.4` | 1-2 phrases | Justification concise |
+| `weight important` | 4-6 phrases | Justification score, points différenciants, ce qui aurait justifié un score supérieur |
+| `weight standard` | 2-3 phrases | Justification score, point principal manquant ou point fort |
+| `weight mineurr` | 1 phrases | Justification concise |
 
 **Règles transversales pour tous les commentaires :**
 
@@ -155,21 +154,6 @@ Renseigner le champ `question` dans les cas suivants :
 
 ---
 
-## Tableau de correspondance score → status
-
-```
-Score 0.0              → fail
-Score 0.5              → fail
-Score 1.0              → fail
-Score 1.5              → fail
-Score 2.0              → partial  (fail si is_mandatory)
-Score 2.5              → partial  (fail si is_mandatory)
-Score 3.0              → pass
-Score 3.5              → pass
-Score 4.0              → pass
-Score 4.5              → pass
-Score 5.0              → pass
-```
 
 ---
 
@@ -180,7 +164,7 @@ Score 5.0              → pass
 
 **Fournisseur A**
 - Response_text : "Notre solution intègre un système RBAC natif avec gestion hiérarchique des rôles, délégation d'administration et audit trail complet. Nous gérons actuellement plus de 200 clients avec ce module, dont 3 dans le secteur public (références disponibles sur demande). Nos rôles sont configurables sans développement via l'interface d'administration. Conformité NF Z42-020 et ISO 27001."
-- Score : 4.5
+- Score : 4
 - Status : pass
 - Comment : "Réponse très complète qui couvre tous les aspects de l'exigence RBAC : gestion hiérarchique, délégation, audit trail et conformité réglementaire. Les références secteur public sont un plus. Légèrement en deçà du score maximum car les mécanismes de révision périodique des habilitations ne sont pas décrits. Meilleure réponse de l'appel d'offres sur ce point."
 

@@ -1,7 +1,7 @@
 {
   "name": "consulting-plugin",
   "description": "Compétences professionnelles de consulting pour la rédaction de propositions commerciales, la réponse aux appels d'offres et la rédaction de cahiers des charges",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "Sébastien Grandperret"
   }

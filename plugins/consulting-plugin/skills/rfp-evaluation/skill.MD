@@ -18,14 +18,14 @@ compatibility: Requires MCP "rfp-analyzer" (for requirements & evaluation persis
 ## Workflow en 5 phases
 
 ```
-Phase 0 : Executive Summary (optionnel) → Lire CDC, lister exigences MCP, validation ⏸
-Phase 1-4 : Boucle par catégorie → Évaluation croisée, scores, questions → checkpoint ⏸
+Phase 0 : Executive Summary obligatoire → Lire CDC, lister exigences MCP, validation ⏸
+Phase 1-4 : Boucle d'évaluation par catégorie → Évaluation croisée, scores, questions → checkpoint ⏸
 Phase 5 : Synthèse globale → Classement pondéré → output Excel ou MCP
 ```
 
 **Voir `docs/WORKFLOW.md` pour le détail complet de chaque phase.**
 
-## Phase 0 — Executive Summary (optionnel)
+## Phase 0 — Executive Summary obligatoire
 
 1. Lire CDC intégralement → enjeux, contraintes, critères implicites
 2. Via MCP : lister catégories + exigences
@@ -39,11 +39,12 @@ Phase 5 : Synthèse globale → Classement pondéré → output Excel ou MCP
 Pour chaque catégorie (ordre hiérarchique MCP) :
 
 1. Annoncer la catégorie : `"Je commence [Nom] ([n] exigences, poids [x%])"`
-2. Pour chaque exigence : lire réponses MCP → comparer tous fournisseurs → attribuer score 0-5 + commentaire + status
+2. Pour chaque exigence : lire réponses MCP → comparer tous fournisseurs sur base de leurs réponses et des documents fournis → attribuer score 0-5 + commentaire + status
 3. Sauvegarder dans MCP via `POST /responses`
 4. ⏸ Présenter récap tabulaire (scores × fournisseurs) et attendre validation
    - Utilisateur peut : ✅ Valider → suivant | ✏️ Ajuster note | 🔍 Revoir exigence
 
+**OBLIGATOIRE : Voir `reference/scoring_guide.md` pour les règles de scoring et statuts.**
 **Voir `docs/WORKFLOW.md` pour détails scores, statuts, et interactions checkpoints.**
 
 ## Phase 5 — Synthèse & Output
@@ -135,7 +136,3 @@ Lors de `POST /rfps/{id}/responses` :
 **Phase 5 :** Synthèse
 - Scores globaux pondérés : Izix 3.8, Cardiweb 3.5, Sharvy 3.2, Commuty 2.7
 - Excel Format A (une feuille par fournisseur) ou Format B (consolidé)
-
----
-
-**Pour tester le skill :** mentionnez une évaluation de RFP, une analyse de fournisseurs, ou une notation d'offres — le skill se déclenche automatiquement.
