@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "rfp-analyzer": {
+      "url": "https://rfp-analyzer-ashy.vercel.app/api/mcp?token=${RFP_ANALYZER_TOKEN}",
+      "transport": "sse"
+    }
+  }
+}

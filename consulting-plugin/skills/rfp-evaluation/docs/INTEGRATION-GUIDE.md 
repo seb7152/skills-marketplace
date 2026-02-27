@@ -1,0 +1,345 @@
+# INTEGRATION-GUIDE.md — Bonnes pratiques et cas particuliers
+
+Guide pratique pour l'intégration et la gestion de scénarios courants.
+
+## Gestion des erreurs MCP
+
+### Erreur de connexion au démarrage
+
+**Symptôme :** `GET /rfps/{id}` → timeout ou 500
+
+**Actions :**
+1. Log l'erreur exacte
+2. Proposer à l'utilisateur :
+   - "Continuer sans MCP (sauvegarde locale JSON temporaire)"
+   - "Réessayer connexion"
+   - "Charger une RFP JSON local"
+3. Si continuation sans MCP :
+   - Sauvegarder toutes les réponses dans fichier JSON temporaire `/tmp/rfp_backup_{timestamp}.json`
+   - Afficher avertissement : "⚠️ Les données ne sont pas sauvegardées dans MCP. Synchronisation à la fin d'évaluation ?"
+4. À la fin de l'évaluation : proposer sync avec `POST /import/responses`
+
+### Réponse incomplète du MCP
+
+**Symptôme :** `GET /rfps/{id}/requirements-tree` retourne liste vide ou incomplète
+
+**Actions :**
+1. Vérifier pagination : `_meta.hasMore == true` ?
+2. Si hasMore, appeler plusieurs fois avec offset
+3. Si toujours incomplet : proposer import manuel via CSV/Excel
+4. Continuer avec ce qui a été chargé + avertissement
+
+### Timeout lors de la sauvegarde
+
+**Symptôme :** `POST /responses` → timeout après 30s
+
+**Actions :**
+1. Sauvegarder localement en JSON
+2. Continuer l'évaluation
+3. À la fin, proposer batch sync :
+   ```
+   POST /rfps/{id}/import/responses
+   {
+     "supplier_name": "Izix",
+     "responses": [... tous les responses en attente ...]
+   }
+   ```
+4. Afficher confirmé : "✅ [n] réponses synchronisées"
+
+## Gestion de la pagination
+
+### Lister plus de 50 exigences
+
+```
+1. GET /rfps/{id}/requirements?limit=50&offset=0
+   → Retour : items (50), _meta.hasMore = true, _meta.nextOffset = 50
+
+2. Accumuler dans liste locale : exigences_totales = [...]
+
+3. GET /rfps/{id}/requirements?limit=50&offset=50
+   → Retour : items (32), _meta.hasMore = false
+
+4. Accumuler finale : exigences_totales += new items → 82 exigences total
+```
+
+### Limite maximale de requêtes
+
+- Max 5 appels paginés avant de notifier l'utilisateur : "Chargement des données (3/5)..."
+- Si > 5 appels nécessaires : proposer import de fichier local au lieu de paginer
+
+## Cas particuliers
+
+### 1. Réevaluation partielle après soutenance
+
+**Contexte :** 6 catégories évaluées (Phase 1-4 complète), utilisateur veut ajuster 3-4 scores suite à clarifications soutenance.
+
+**Workflow :**
+
+```
+1. Identifier exigences à révaluer
+   "Je veux ajuster E-042, E-051, et E-070"
+
+2. Récupérer les réponses existantes
+   GET /rfps/{id}/responses?requirement_id=E-042
+   GET /rfps/{id}/responses?requirement_id=E-051
+   GET /rfps/{id}/responses?requirement_id=E-070
+   
+3. Afficher contexte soutenance
+   "À la soutenance, le fournisseur a précisé que..."
+
+4. Utilisateur donne nouveaux scores
+   "E-042 : Izix 2 → 3.5"
+   "E-051 : Sharvy 3 → 4"
+
+5. POST /responses pour mettre à jour (upsert)
+   {
+     "supplier_id": "...",
+     "requirement_id": "...",
+     "ai_score": 3.5,
+     "ai_comment": "Ajusté suite à soutenance : clarification fournie sur...",
+     "status": "pass",
+     "question": null  // ou nouvelle question
+   }
+
+6. Recalculer et afficher impact global
+   GET /scoring-matrix
+   "Nouveau score global Izix : 3.82 → 3.88"
+   Classement : inchangé (reste #1)
+```
+
+### 2. Ajout d'un fournisseur en cours d'évaluation
+
+**Contexte :** 4 fournisseurs évalués sur 2/6 catégories, utilisateur ajoute un 5e en cours.
+
+**Workflow :**
+
+```
+1. POST /suppliers pour ajouter le nouveau
+   {
+     "name": "Nouveau Fournisseur",
+     "supplier_id_external": "NEW",
+     "contact_name": "...",
+     "contact_email": "..."
+   }
+
+2. Marquer ses réponses comme "pending" pour catégories 1-2
+   "Catégories 1-2 : À réévaluer avec le nouveau fournisseur"
+
+3. Continuer catégorie 3 avec 5 fournisseurs
+   Checkpoint affiche 5 colonnes au lieu de 4
+
+4. Réévaluer catégories 1-2 avec le nouveau
+   POST /responses pour ajouter réponses manquantes
+
+5. Recalculer matrix final avec tous 5 fournisseurs
+```
+
+### 3. Utilisateur saute l'Executive Summary
+
+**Contexte :** Utilisateur indique "pas besoin de synthèse préalable, va direct aux évaluations"
+
+**Workflow :**
+
+```
+1. Confirmer avec utilisateur
+   "OK, on lance Phase 1-4 directement sans Executive Summary"
+
+2. Afficher récap rapide des catégories principales
+   "📋 Catégories principales :
+    • DOM2 Description fonctionnelle (37 ex, poids 45%)
+    • DOM3 Description technique (21 ex, poids 35%)
+    • DOM5 Dispositif projet (10 ex, poids 5%)
+    • DOM6 Maintenance (14 ex, poids 10%)
+    • Autres (6 ex, poids 5%)"
+
+3. Lancer Phase 1 directement
+   "Je commence la catégorie DOM2..."
+```
+
+### 4. Utilisateur veut changer le format de scoring
+
+**Contexte :** Moitié d'une évaluation faite avec scores 0-5, utilisateur veut passer à une grille qualitative ("Pass/Partial/Fail")
+
+**Workflow :**
+
+```
+1. Expliquer impact
+   "Les scores numériques 0-5 et les statuts qualifitatifs coexistent dans MCP
+    Suggestion : continuer avec scores 0-5 + status qualifitatif pour clarté"
+
+2. Continuer avec score + status
+   "Pour chaque réponse : donner score 0-5 ET status pass/partial/fail
+    Ça garantit clarté numérique ET lisibilité qualitative"
+
+3. Ou : convertir rétroactivement
+   "Je peux convertir les scores existants en status :
+    0-2 → fail
+    2-3 → partial
+    3-5 → pass"
+```
+
+### 5. Utilisateur veut exporter en cours d'évaluation
+
+**Contexte :** 3 catégories évaluées sur 6, utilisateur veut un Excel de l'état actuel.
+
+**Workflow :**
+
+```
+1. Exporter l'état actuel
+   GET /rfps/{id}/structure → catégories + stats
+   GET /rfps/{id}/requirements-tree → exigences
+   GET /rfps/{id}/suppliers → fournisseurs
+   GET /rfps/{id}/responses → réponses existantes
+
+2. Construire JSON pour generate_evaluation_grid.py
+   {
+     "project": "[ENGIE] Smart Parking",
+     "suppliers": ["IZIX", "SHARVY", ...],
+     "categories": [...],
+     "requirements": [...],
+     "responses": {...}
+   }
+
+3. Exécuter script
+   python scripts/generate_evaluation_grid.py data.json output.xlsx --format A
+
+4. Avertir utilisateur
+   "Excel généré avec état actuel. Continuer l'évaluation ?
+    Les catégories restantes (4-6) seront ajoutées à la prochaine exportation"
+```
+
+## Bonnes pratiques
+
+### 1. Caching local pour performances
+
+```python
+# Cache structure au démarrage
+rfp_cache = {
+    "structure": None,      # GET /structure
+    "suppliers": [],        # GET /suppliers
+    "requirements": {},     # GET /requirements-tree
+    "responses": {},        # GET /responses (key: requirement_id)
+    "cached_at": datetime.now()
+}
+
+# Invalider cache si ajout fournisseur
+def add_supplier(...):
+    POST /suppliers
+    rfp_cache["suppliers"] = None  # Force reload
+    rfp_cache["responses"] = {}    # Éviter réponses ghost
+```
+
+### 2. Validation des données avant sauvegarde
+
+```python
+def validate_response(data):
+    # Vérifier champs obligatoires
+    if not data.get("supplier_id"):
+        raise ValueError("supplier_id manquant")
+    if not data.get("requirement_id"):
+        raise ValueError("requirement_id manquant")
+    
+    # Vérifier score 0-5
+    score = data.get("ai_score")
+    if not isinstance(score, (int, float)) or not 0 <= score <= 5:
+        raise ValueError(f"Score invalide : {score}")
+    
+    # Vérifier status valide
+    if data.get("status") not in ["pass", "partial", "fail", "pending"]:
+        raise ValueError(f"Status invalide : {data.get('status')}")
+    
+    return True
+```
+
+### 3. Batch sync avec retry
+
+```python
+def batch_sync_responses(pending_responses, max_retries=3):
+    """Synchroniser réponses en attente avec retry"""
+    retry = 0
+    while retry < max_retries:
+        try:
+            POST /rfps/{id}/import/responses
+            {
+              "supplier_name": "...",
+              "responses": pending_responses
+            }
+            return True
+        except TimeoutError:
+            retry += 1
+            if retry < max_retries:
+                wait(2 ** retry)  # Exponential backoff: 2s, 4s, 8s
+            else:
+                raise
+```
+
+### 4. Monitoring et logging
+
+```
+À chaque opération MCP, logger :
+  • timestamp
+  • méthode (GET/POST/PATCH)
+  • endpoint
+  • statut réponse (200/201/timeout/500)
+  • durée ms
+  • nombre de données retournées
+
+Exemple :
+  "2026-02-27 10:45:30 | POST /rfps/.../responses | 201 | 340ms | 1 response créée"
+```
+
+## Configuration de déploiement
+
+### Environnements
+
+```
+.env.development
+  MCP_ENDPOINT=http://localhost:8000
+  MCP_TIMEOUT=30s
+  LOG_LEVEL=debug
+
+.env.production
+  MCP_ENDPOINT=https://rfp-analyzer.company.com
+  MCP_TIMEOUT=60s
+  LOG_LEVEL=warn
+```
+
+### Healthcheck MCP
+
+```python
+def healthcheck_mcp():
+    """Valider MCP accessible avant lancer évaluation"""
+    try:
+        response = GET /rfps
+        if response.status == 200:
+            return True
+    except Exception as e:
+        logger.error(f"MCP unhealthy : {e}")
+        return False
+```
+
+## Migration depuis ancien système
+
+### Import données existantes
+
+Si l'utilisateur a des exigences/réponses dans un Excel/CSV :
+
+```
+1. Parser fichier local (utiliser rfp-import-extractor si nécessaire)
+
+2. Importer dans MCP
+   POST /import/categories
+   POST /import/requirements
+   POST /import/responses
+
+3. Valider données importées
+   GET /structure → vérifier catégories
+   GET /requirements-tree → vérifier exigences
+   GET /responses → vérifier réponses
+
+4. Continuer évaluation normalement
+```
+
+---
+
+**Voir `docs/WORKFLOW.md` pour interactions utilisateur détaillées.**

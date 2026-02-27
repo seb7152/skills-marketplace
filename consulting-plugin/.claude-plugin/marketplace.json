@@ -1,0 +1,25 @@
+{
+  "name": "consulting-tools",
+  "owner": {
+    "name": "Sébastien Grandperret",
+    "email": "contact@example.com"
+  },
+  "metadata": {
+    "description": "Outils professionnels de consulting pour la gestion d'appels d'offres, propositions commerciales et cahiers des charges",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "consulting-plugin",
+      "source": ".",
+      "description": "Compétences professionnelles de consulting pour la rédaction de propositions commerciales, la réponse aux appels d'offres et la rédaction de cahiers des charges",
+      "version": "1.0.0",
+      "author": {
+        "name": "Sébastien Grandperret"
+      },
+      "category": "consulting",
+      "keywords": ["consulting", "rfp", "proposals", "appels-offres", "specifications"],
+      "license": "MIT"
+    }
+  ]
+}
