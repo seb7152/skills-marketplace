@@ -56,6 +56,10 @@ Categories define the hierarchical structure of requirements (domains, sub-domai
 - Optional fields (`parent_id`, `order`) can be safely omitted
 - If a category has a `parent_id`, that parent must exist in the same import with a matching `id`
 
+> ⚠️ **IMPORTANT — Ne jamais importer les pondérations des catégories**
+>
+> Les fichiers sources (Excel, Word) contiennent souvent des colonnes de pondération (ex: "Pondération", "Poids", valeurs numériques comme 0.4, 0.3...). Ces valeurs **ne doivent JAMAIS être incluses dans le JSON des catégories**. Le schéma ne comporte pas de champ `weight` pour les catégories — tout champ supplémentaire sera rejeté par la validation STRICT. Les pondérations sont gérées directement dans le RFP Analyzer et non via l'import. Si le fichier source contient des colonnes de pondération, les ignorer complètement lors de l'extraction.
+
 ### Recommended Code Scheme
 
 Unless the user specifies otherwise, use **hierarchical numbering** for category codes:
@@ -210,6 +214,7 @@ Responses contain supplier answers and evaluations (both AI and manual).
 
 - `requirement_id_external` must reference an existing requirement code
 - `ai_score` and `manual_score` must be between 0 and 5, in increments of 0.5 (0, 0.5, 1.0, 1.5, ..., 5.0)
+- **Scores `None` / cellules vides** : Si un score est absent ou vide dans le fichier source (cellule vide, `None`, `N/A`), le traiter comme `0` — ne pas omettre le champ ni laisser `null`. Exemple : `"manual_score": 0`.
 - **Status values** - `status` field must be ONE of these **exact values** (database enforced):
   - `"pending"` - En attente (Awaiting evaluation) - **default if not specified**
   - `"pass"` - Conforme (Requirement fully satisfied)

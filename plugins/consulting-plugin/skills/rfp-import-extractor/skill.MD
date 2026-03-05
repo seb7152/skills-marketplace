@@ -447,6 +447,8 @@ For complete schema details, see `references/json_schemas.md`.
 5. **Save scripts** - Every extraction script is reusable
 6. **Confirm assumptions** - Ask rather than assume
 7. **Test incrementally** - Extract 5 items first, then scale up
+8. **Never import category weights** - Les colonnes de pondération présentes dans les fichiers sources (Excel, Word) ne doivent JAMAIS être incluses dans le JSON des catégories. Le schéma catégories ne comporte pas de champ `weight` — la validation STRICT le rejettera. Ignorer ces colonnes lors de l'extraction.
+9. **Scores absents → 0** - Toute cellule vide, `None` ou `N/A` sur un score de réponse fournisseur doit être mappée à `0`, jamais omise ni laissée `null`.
 
 ---
 
@@ -479,3 +481,11 @@ For complete schema details, see `references/json_schemas.md`.
 - Check for edge cases: empty cells, merged cells, unexpected formats
 - Add defensive checks (`if cell is not None`, `.strip()`, etc.)
 - Log skipped rows for review
+
+**Problem:** "Validation rejects unknown field 'weight' on categories"
+
+- Les pondérations des catégories ne font pas partie du schéma d'import. Supprimer tout champ `weight`, `ponderation` ou similaire du JSON catégories avant import. Ces valeurs sont gérées directement dans le RFP Analyzer.
+
+**Problem:** "Score à None / null dans le JSON des réponses"
+
+- Remplacer toute valeur `None` ou absente sur `ai_score` / `manual_score` par `0`. Ne jamais omettre le champ ni laisser `null`.

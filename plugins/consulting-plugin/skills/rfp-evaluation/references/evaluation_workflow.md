@@ -46,6 +46,7 @@ Avant de commencer, poser les questions suivantes à l'utilisateur si l'informat
 
 **Sur le projet :**
 - "Quel est le nom ou référence de cet appel d'offres ?"
+- "Est-il déjà dans RFP-analyzer ?"
 - "Combien de fournisseurs sont en compétition ?"
 - "Quels sont leurs noms ?" (pour les retrouver dans rfp-analyzer)
 
@@ -82,7 +83,7 @@ Voulez-vous que je déclenche le skill rfp-import-extractor sur votre fichier
 
 ### Biais à éviter
 
-- Ne pas lire les offres fournisseurs avant de finir l'ES (risque de biais)
+- Ne pas lire les offres fournisseurs avant de finir l'Executive Summary (risque de biais)
 - Ne pas se laisser influencer par le poids d'un fournisseur connu
 - Garder un regard critique sur les exigences mal formulées dans le CDC
 
