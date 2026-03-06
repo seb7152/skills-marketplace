@@ -1,6 +1,6 @@
 ---
 name: rfp-import-extractor
-description: Extract RFP data (categories, requirements, supplier responses) from Excel or Word files and generate validated JSON for import. Use this skill when users need to analyze and extract structured data from documents, create custom extraction scripts, or import RFP data. Triggers include requests like "extract requirements from this Excel file", "analyze this Word document and generate JSON", "import supplier responses from this file", or "convert this RFP document to JSON format".
+description: Extract RFP data (categories, requirements, supplier responses) from Excel or Word files, generate validated JSON, and optionally import directly into RFP Analyzer via MCP. Use this skill when users need to analyze and extract structured data from documents, create custom extraction scripts, or import RFP data. Triggers include requests like "extract requirements from this Excel file", "analyze this Word document and generate JSON", "import supplier responses from this file", "import this data into RFP Analyzer", or "convert this RFP document to JSON format".
 ---
 
 # RFP Import Extractor
@@ -28,9 +28,11 @@ Follow this workflow for every file extraction request:
    ↓
 3. Build Custom Extraction Script
    ↓
-4. Extract and Validate JSON
+4. Extract and Validate JSON (MANDATORY)
    ↓
-5. Save Script for Reuse
+5. Import to RFP Analyzer (Optional)
+   ↓
+6. Save Script for Reuse
 ```
 
 ---
@@ -218,7 +220,11 @@ See **`references/script-building-guide.md`** for comprehensive details.
 
 ## Step 4: Extract and Validate JSON
 
-Run the extraction script and validate the output.
+Run the extraction script and **validate the output**.
+
+**⚠️ CRITICAL - Validation is MANDATORY before any import**
+
+The validation step with `scripts/validate_json.py` is **absolutely required** before importing data into RFP Analyzer. Do not skip this step.
 
 ### Execute Extraction
 
@@ -230,9 +236,9 @@ python extract_requirements_acme_2024.py input.xlsx requirements.json
 cat requirements.json | head -n 20
 ```
 
-### Validate JSON
+### Validate JSON (MANDATORY)
 
-Use the validation script to ensure the JSON matches the expected schema:
+**Use the validation script to ensure the JSON matches the expected schema:**
 
 ```bash
 # Validate categories
@@ -261,12 +267,20 @@ The validator checks:
 
 **For requirements import, always provide categories.json to validate category references!**
 
+**⚠️ NEVER SKIP VALIDATION**
+
+- Validation ensures data integrity before import
+- Prevents failed imports and database errors
+- Catches issues like missing categories, invalid scores, unknown fields
+- **Import tools will reject unvalidated data**
+
 **If validation fails:**
 
-1. Review error messages
+1. Review error messages carefully
 2. Fix the extraction script logic
 3. Re-run extraction
-4. Validate again
+4. **Validate again** until all checks pass
+5. Only then proceed to import (Step 5)
 
 **Preview the Data:**
 
@@ -287,9 +301,168 @@ Ask: "Does this look correct? Should I proceed with the full extraction?"
 
 ---
 
-## Step 5: Save Script for Reuse
+## Step 5: Import to RFP Analyzer
 
-After successful extraction, save the script for future use.
+After successful validation, you can import the data directly into RFP Analyzer via the MCP server.
+
+### Ask User Intent
+
+Before proceeding, ask the user:
+
+> "Voulez-vous que je :
+> - a) **Génère un fichier JSON** pour révision manuelle
+> - b) **Importe directement** dans RFP Analyzer via MCP
+> - c) **Les deux** (JSON + import automatique)"
+
+### If User Chooses Import (b or c)
+
+#### Step 5.1: Get RFP ID
+
+Ask the user:
+
+> "Quel est l'ID du RFP dans RFP Analyzer où importer ces données?"
+
+If the user doesn't know the ID, use the MCP tool `get_rfps` to list available RFPs:
+
+```bash
+# MCP Tool: get_rfps
+# Returns list of RFPs with IDs and titles
+```
+
+#### Step 5.2: Choose Import Method
+
+**Small volumes (<100 items):** Use MCP Tools directly
+
+**Large volumes (>100 items):** Use HTTP endpoint via curl
+
+| Data Type | Small Volume | Large Volume |
+|-----------|--------------|--------------|
+| Categories | `import_structure` tool | `get_import_command` + curl |
+| Requirements | `import_requirements` tool | `get_import_command` + curl |
+| Supplier Responses | `import_supplier_responses` tool | `get_import_command` + curl |
+
+#### Step 5.3: Import with MCP Tools (Small Volumes)
+
+**For Categories:**
+
+```bash
+# MCP Tool: import_structure
+{
+  "rfp_id": "<rfp-uuid>",
+  "file_content": "<JSON string of categories>",
+  "mode": "append"  # or "replace"
+}
+```
+
+**For Requirements:**
+
+```bash
+# MCP Tool: import_requirements
+{
+  "rfp_id": "<rfp-uuid>",
+  "file_content": "<JSON string of requirements>",
+  "mode": "append"  # or "replace"
+}
+```
+
+**For Supplier Responses:**
+
+```bash
+# MCP Tool: import_supplier_responses
+{
+  "rfp_id": "<rfp-uuid>",
+  "file_content": "<JSON string of responses>",
+  "supplier_name": "Acme Corp",  # or supplier_id if known
+  "version_id": "<version-uuid>"  # optional
+}
+```
+
+#### Step 5.4: Import with HTTP Endpoint (Large Volumes)
+
+For files with >100 items, use the HTTP endpoint to keep the file out of context:
+
+**Generate import command:**
+
+```bash
+# MCP Tool: get_import_command
+{
+  "rfp_id": "<rfp-uuid>",
+  "type": "requirements",  # or "structure" or "supplier_responses"
+  "mode": "append",
+  "file_path": "requirements.json"
+}
+```
+
+This returns a curl command like:
+
+```bash
+curl -X POST 'https://app.vercel.app/api/mcp/import-file?rfp_id=xxx&type=requirements&mode=append' \
+  -H 'Authorization: Bearer <short-lived-token>' \
+  --data-binary @requirements.json
+```
+
+**Execute the returned curl command.**
+
+#### Step 5.5: Verify Import Results
+
+The import tools return a result with:
+
+```json
+{
+  "created": 108,
+  "skipped": 2,
+  "errors": [
+    {
+      "code": "REQ-042",
+      "error": "Category 'DOM99' not found"
+    }
+  ]
+}
+```
+
+**If errors occur:**
+
+1. Review the `errors` array
+2. Fix the problematic items in the source JSON
+3. Re-validate with `scripts/validate_json.py`
+4. Re-import only the failed items
+
+**Report to user:**
+
+> "Import completed successfully:
+> - ✅ 108 requirements created
+> - ⚠️ 2 skipped (duplicates)
+> - ❌ 1 error: REQ-042 - Category 'DOM99' not found
+>
+> Should I fix the error and re-import?"
+
+### Import Order (Important)
+
+Always import in this order to avoid reference errors:
+
+```
+1. Categories (structure)
+   ↓
+2. Requirements (reference categories)
+   ↓
+3. Supplier Responses (reference requirements)
+```
+
+### Complete MCP Documentation
+
+For detailed MCP integration guide, including:
+- Authentication setup
+- All available tools
+- Error handling strategies
+- Complete examples
+
+See **`references/mcp_integration.md`**
+
+---
+
+## Step 6: Save Script for Reuse
+
+After successful extraction (and optional import), save the script for future use.
 
 ### Recommended Location
 

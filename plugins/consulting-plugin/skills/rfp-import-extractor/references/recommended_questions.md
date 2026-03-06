@@ -181,18 +181,130 @@ Questions serve to:
 
 ---
 
-## Phase 7: Post-Extraction
+## Phase 7: Post-Extraction & Validation
 
 ### Questions After Extraction
 
-1. "I've extracted [X] items. Would you like me to:"
+1. "I've extracted [X] items. The JSON has been saved to [filename]. Would you like me to:"
    - Show you a preview of the JSON?
-   - Validate it using `validate_json.py`?
-   - Import it immediately?
+   - **Validate it using `validate_json.py`?** (Recommended)
+   - Both?
 
-2. "Would you like me to save this extraction script in `scripts/extractions/` for reuse?"
+2. **After validation passes:** "✅ Validation successful! Would you like me to:"
+   - a) Keep the JSON file for manual review/import later
+   - b) **Import directly into RFP Analyzer via MCP**
+   - c) Both (keep JSON + import)
 
-3. "Do you need to extract data from similar files? If so, I can adapt this script for them."
+3. "Would you like me to save this extraction script in `scripts/extractions/` for reuse?"
+
+---
+
+## Phase 8: MCP Import (If User Chooses Direct Import)
+
+### Questions Before Import
+
+**1. RFP Identification:**
+
+"To import into RFP Analyzer, I need the RFP ID. Do you know the ID?"
+
+- **If yes:** "Perfect! What's the RFP ID?"
+- **If no:** "No problem, let me list your RFPs. One moment..."
+  - Use MCP tool: `get_rfps`
+  - Show list: "I found these RFPs: [list with IDs and titles]. Which one should I use?"
+
+**2. Import Mode (for categories/requirements only):**
+
+"How should I import the data?"
+
+- **`append`** (default): Add to existing data without removing anything
+- **`replace`**: Remove all existing [categories/requirements] and replace with this new data
+
+**Recommendation to share:**
+
+> "I recommend `append` mode unless you explicitly want to start fresh. With `append`, your existing data will be preserved and new items will be added."
+
+**3. Supplier Selection (for supplier responses only):**
+
+"Which supplier are these responses for?"
+
+- **If they know the supplier ID:** "What's the supplier ID in RFP Analyzer?"
+- **If they know the name only:** "What's the supplier name? (I'll find or create it)"
+- **If they don't know:** "Let me list the suppliers for this RFP..."
+  - Use MCP tool: `list_suppliers`
+  - Show list and ask: "Which supplier should I use?"
+
+**4. Import Method Selection:**
+
+"I can import using two methods:"
+
+- **MCP Tools** (for <100 items): Fast, interactive, immediate feedback
+- **HTTP curl** (for >100 items): Optimized for large files, keeps data out of context
+
+Based on your data:
+
+- [X] items total
+- **Recommended method:** [MCP Tools / HTTP curl]
+
+"Which method would you like me to use?"
+
+**5. Final Confirmation:**
+
+"Before I proceed, let me confirm:
+
+- **RFP:** [RFP Title] (ID: xxx)
+- **Data Type:** [Categories / Requirements / Supplier Responses]
+- **Mode:** [append / replace]
+- **Items:** [X] to import
+- **Method:** [MCP Tools / HTTP curl]
+
+Should I proceed with the import?"
+
+### Questions After Import
+
+**1. Import Results:**
+
+If successful:
+
+> "✅ Import completed successfully!
+> - Created: [X] items
+> - Skipped: [Y] items (duplicates)
+> - Errors: [Z] items
+>
+> [If errors > 0:] Should I review the errors and attempt to re-import the failed items?"
+
+**2. Post-Import Actions:**
+
+"Would you like me to:"
+
+- Verify the imported data in RFP Analyzer? (Use `get_requirements` or similar)
+- Save the extraction script for future use?
+- Extract and import data from another similar file?
+
+### Error Handling Questions
+
+**If import fails or has errors:**
+
+1. "I encountered [X] errors during import. Here are the issues:"
+   - [List errors with codes/details]
+
+2. "These errors are likely due to:"
+   - [Explain probable causes based on error type]
+
+3. "Should I:"
+   - Fix the source data and re-extract?
+   - Skip the problematic items and proceed with the rest?
+   - Try a different approach?
+
+**Common error scenarios:**
+
+- **"Category not found"**:
+  > "The requirement references category '[code]' which doesn't exist yet. Should I import the categories first, then retry the requirements?"
+
+- **"Requirement not found" (for responses)**:
+  > "The supplier responses reference requirements that don't exist yet. Should I import the requirements first?"
+
+- **"Validation error: unknown field"**:
+  > "The JSON contains fields that aren't part of the schema. Should I clean the JSON and retry?"
 
 ---
 
