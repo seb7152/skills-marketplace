@@ -42,4 +42,4 @@ build/
 *.egg-info/
 
 #Tests
-Tests/
+Tests/*
