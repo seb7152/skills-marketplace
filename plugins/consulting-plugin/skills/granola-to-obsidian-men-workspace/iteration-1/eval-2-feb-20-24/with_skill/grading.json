@@ -1,0 +1,31 @@
+{
+  "run_id": "eval-2-with-skill",
+  "eval_name": "import-feb-20-24-meetings",
+  "expectations": [
+    {
+      "text": "Meetings created (minimum 2)",
+      "passed": true,
+      "evidence": "3 meetings successfully created: Planning DNE, Suivi Orange, Déploiement fibre"
+    },
+    {
+      "text": "Meeting types correctly deduced (includes coproj and point-apd)",
+      "passed": true,
+      "evidence": "Meeting types detected: coproj (1), point-apd (1), coordination (1) - all inferred from context"
+    },
+    {
+      "text": "Porteur detection working (Julien, Clémentine, or others)",
+      "passed": true,
+      "evidence": "Julien Prévost and Clémentine detected via fuzzy matching and wiki-linked in action items"
+    },
+    {
+      "text": "Index section 'Semaine 20-24 février' created",
+      "passed": true,
+      "evidence": "New week section created in MEN - Index.md with 3 chronologically ordered meeting entries"
+    },
+    {
+      "text": "Themes linked ([[Projet Pascal]], [[Architecture réseau]])",
+      "passed": true,
+      "evidence": "6 theme wiki-links created, Projet Pascal updated with 'Semaine 20-24 février' subsection"
+    }
+  ]
+}

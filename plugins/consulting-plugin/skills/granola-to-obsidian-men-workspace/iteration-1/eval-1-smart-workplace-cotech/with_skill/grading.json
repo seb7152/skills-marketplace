@@ -1,0 +1,31 @@
+{
+  "run_id": "eval-1-with-skill",
+  "eval_name": "import-feb-6-smart-workplace-cotech",
+  "expectations": [
+    {
+      "text": "Two meeting notes created (Smart Workplace and COTECH)",
+      "passed": true,
+      "evidence": "2026-02-06 - Smart Workplace.md (4660 bytes) and 2026-02-06 - COTECH.md (2363 bytes) both verified in outputs"
+    },
+    {
+      "text": "YAML frontmatter present with correct tags",
+      "passed": true,
+      "evidence": "Both files contain frontmatter with tags: #MEN_point-apd and #MEN_cotech with correct status: completed"
+    },
+    {
+      "text": "Porteur detected via fuzzy matching (Julien Prévost)",
+      "passed": true,
+      "evidence": "Julien Prévost identified in Smart Workplace actions and COTECH meeting via fuzzy matching algorithm"
+    },
+    {
+      "text": "Index updated with 'Semaine 2-6 février' section",
+      "passed": true,
+      "evidence": "MEN - Index.md confirmed updated with new 'Semaine 2-6 février' section and chronological entries"
+    },
+    {
+      "text": "Themes linked correctly ([[Smart Workplace]], [[Architecture réseau]])",
+      "passed": true,
+      "evidence": "Theme pages updated: Smart Workplace.md and Architecture réseau.md both have meeting references added"
+    }
+  ]
+}

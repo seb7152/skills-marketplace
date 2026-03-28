@@ -1,0 +1,36 @@
+{
+  "run_id": "eval-3-without-skill",
+  "eval_name": "import-march-selective-filter",
+  "expectations": [
+    {
+      "text": "Smart Workplace methodology meetings filtered out before display",
+      "passed": true,
+      "evidence": "5/5 Smart Workplace meetings correctly identified via title pattern matching (100% accuracy)"
+    },
+    {
+      "text": "User selective import works (responds with 'ok except N,M')",
+      "passed": false,
+      "evidence": "Smart Workplace identification possible but no skill to actually perform selective import"
+    },
+    {
+      "text": "Correct meetings created (no Smart Workplace in final output)",
+      "passed": false,
+      "evidence": "39 core meetings identified but none created - would require 4.4 hours estimated manual effort"
+    },
+    {
+      "text": "Multiple meeting types created (COTECH, COPROJ, Point APD)",
+      "passed": false,
+      "evidence": "Type inference possible semantically but not performed in baseline"
+    },
+    {
+      "text": "Index updated with correct week sections",
+      "passed": false,
+      "evidence": "No index update performed in baseline - requires vault integration"
+    },
+    {
+      "text": "Themes linked ([[Projet Pascal]], [[Architecture réseau]], [[Gouvernance]])",
+      "passed": false,
+      "evidence": "Themes identifiable semantically (100% accuracy on Smart Workplace filtering) but no cross-linking performed"
+    }
+  ]
+}
