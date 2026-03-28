@@ -1,0 +1,42 @@
+{
+  "skill_name": "weekly-meetings-synthesis",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Tu peux me générer une synthèse des réunions de la semaine dans les dossiers MEN de Granola ? Je veux un doc Word avec les noms des réunions, objectifs, éléments clés et actions.",
+      "expected_output": "Un fichier .docx nommé AAMMJJ - Synthese de la semaine.docx dans le dossier MEN - PASCAL, couvrant toutes les réunions des dossiers MEN de la semaine, avec pour chaque réunion : titre, date, objectif, éléments clés et tableau d'actions.",
+      "files": [],
+      "expectations": [
+        "Un fichier .docx est créé dans le dossier workspace",
+        "Le fichier est nommé au format AAMMJJ - Synthese de la semaine.docx",
+        "Le document contient au moins une réunion avec titre, objectif et éléments clés",
+        "Le document contient un tableau d'actions pour les réunions qui en ont",
+        "Seules les réunions des dossiers MEN sont incluses (pas les réunions commerciales ou carrière)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Synthèse hebdo des meetings MEN s'il te plaît",
+      "expected_output": "Un fichier .docx nommé AAMMJJ - Synthese de la semaine.docx généré à partir des réunions Granola des dossiers MEN de la semaine courante.",
+      "files": [],
+      "expectations": [
+        "Un fichier .docx est créé dans le dossier workspace",
+        "Le fichier est nommé au format AAMMJJ - Synthese de la semaine.docx",
+        "Le document couvre les réunions de la semaine (pas celles du mois ou de l'année)",
+        "Le document est structuré avec des sections par réunion"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Tu peux faire un recap de ce qui s'est passé cette semaine côté projet PASCAL ? Je veux ça en Word.",
+      "expected_output": "Un fichier .docx nommé AAMMJJ - Synthese de la semaine.docx couvrant les réunions MEN/PASCAL de la semaine.",
+      "files": [],
+      "expectations": [
+        "Un fichier .docx est créé",
+        "Le fichier est nommé au format AAMMJJ - Synthese de la semaine.docx",
+        "Le skill interroge bien les dossiers MEN de Granola",
+        "Le document est lisible et professionnel (en-têtes, couleurs, mise en forme)"
+      ]
+    }
+  ]
+}
